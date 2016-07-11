@@ -8326,13 +8326,19 @@ var _evancz$elm_http$Http$post = F3(
 			decoder,
 			A2(_evancz$elm_http$Http$send, _evancz$elm_http$Http$defaultSettings, request));
 	});
-var _user$project$Types$Model = F2(
-	function (a, b) {
-		return {news: a, error: b};
-	});
+var _user$project$Types$Model = function (a) {
+	return {news: a};
+};
 var _user$project$Types$News = function (a) {
 	return {headline: a};
 };
+var _user$project$Types$Succeeded = function (a) {
+	return {ctor: 'Succeeded', _0: a};
+};
+var _user$project$Types$Failed = function (a) {
+	return {ctor: 'Failed', _0: a};
+};
+var _user$project$Types$Loading = {ctor: 'Loading'};
 var _user$project$Types$GetNewsResponse = function (a) {
 	return {ctor: 'GetNewsResponse', _0: a};
 };
@@ -8350,42 +8356,26 @@ var _user$project$Rest$getNews = A2(
 	_user$project$Types$GetNewsResponse,
 	A3(
 		_elm_lang$core$Task$perform,
-		_elm_lang$core$Result$Err,
-		_elm_lang$core$Result$Ok,
+		_user$project$Types$Failed,
+		_user$project$Types$Succeeded,
 		A2(_evancz$elm_http$Http$get, _user$project$Rest$decodeNews, _user$project$Rest$endpoint)));
 var _user$project$State$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
 var _user$project$State$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		if (_p0._0.ctor === 'Err') {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{
-						error: _elm_lang$core$Maybe$Just(_p0._0._0)
-					}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		} else {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{news: _p0._0._0}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		}
+		var _p0 = A2(_elm_lang$core$Debug$log, 'Got message', msg);
+		return {
+			ctor: '_Tuple2',
+			_0: _elm_lang$core$Native_Utils.update(
+				model,
+				{news: _p0._0}),
+			_1: _elm_lang$core$Platform_Cmd$none
+		};
 	});
 var _user$project$State$init = {
 	ctor: '_Tuple2',
-	_0: {
-		news: _elm_lang$core$Native_List.fromArray(
-			[]),
-		error: _elm_lang$core$Maybe$Nothing
-	},
+	_0: {news: _user$project$Types$Loading},
 	_1: _user$project$Rest$getNews
 };
 var _user$project$View$newsItem = function (news) {
@@ -8401,7 +8391,8 @@ var _user$project$View$newsItem = function (news) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text(news.headline)
+						_elm_lang$html$Html$text(
+						A2(_elm_lang$core$Debug$log, 'Showing', news.headline))
 					]))
 			]));
 };
@@ -8426,27 +8417,36 @@ var _user$project$View$root = function (model) {
 					[
 						_elm_lang$html$Html$text('News!')
 					])),
-				A2(
-				_elm_lang$html$Html$ul,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				A2(_elm_lang$core$List$map, _user$project$View$newsItem, model.news)),
-				A2(
-				_elm_lang$html$Html$div,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						A2(
-						_elm_lang$html$Html$code,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(model))
-							]))
-					]))
+				function () {
+				var _p0 = model.news;
+				switch (_p0.ctor) {
+					case 'Succeeded':
+						return A2(
+							_elm_lang$html$Html$ul,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							A2(_elm_lang$core$List$map, _user$project$View$newsItem, _p0._0));
+					case 'Loading':
+						return _elm_lang$html$Html$text('Loading');
+					default:
+						return A2(
+							_elm_lang$html$Html$div,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									A2(
+									_elm_lang$html$Html$code,
+									_elm_lang$core$Native_List.fromArray(
+										[]),
+									_elm_lang$core$Native_List.fromArray(
+										[
+											_elm_lang$html$Html$text(
+											_elm_lang$core$Basics$toString(_p0._0))
+										]))
+								]));
+				}
+			}()
 			]));
 };
 var _user$project$App$main = {
